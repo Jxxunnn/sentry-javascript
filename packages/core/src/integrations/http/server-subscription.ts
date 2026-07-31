@@ -255,6 +255,8 @@ function buildServerSpanWrap(
         return next();
       }
 
+      const dataCollectionOptions = client.getDataCollectionOptions();
+
       if (
         shouldIgnoreSpansForIncomingRequest(request, {
           ignoreStaticAssets,
@@ -308,7 +310,7 @@ function buildServerSpanWrap(
             'http.flavor': httpVersion,
             'net.transport': httpVersion?.toUpperCase() === 'QUIC' ? 'ip_udp' : 'ip_tcp',
             ...getRequestContentLengthAttribute(request),
-            ...httpHeadersToSpanAttributes(normalizedRequest.headers || {}, client.getDataCollectionOptions()),
+            ...httpHeadersToSpanAttributes(normalizedRequest.headers || {}, dataCollectionOptions),
           },
         },
         span => {
@@ -330,7 +332,7 @@ function buildServerSpanWrap(
               'http.status_code': response.statusCode,
               ...httpHeadersToSpanAttributes(
                 headersToDict(response.headers),
-                client.getDataCollectionOptions(),
+                dataCollectionOptions,
                 'response',
               ),
             });
