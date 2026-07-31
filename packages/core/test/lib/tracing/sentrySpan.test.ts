@@ -297,91 +297,14 @@ describe('SentrySpan', () => {
         expect(mockSend).toHaveBeenCalled();
       });
 
-      test('applies a static `beforeSendSpan` to standalone spans in the static trace lifecycle', () => {
-        // Standalone spans are sent as v2 streamed spans even in the static trace lifecycle, so a
-        // `withStaticSpan` callback still has to see them — in the v1 format it expects.
-        // The callback mutates in place, so snapshot what it received before modifying it
-        let received: Partial<SpanJSON> | undefined;
-        const beforeSendSpan = vi.fn((span: SpanJSON) => {
-          received = { ...span };
-          span.description = 'renamed-by-beforeSendSpan';
-          return span;
-        });
-        const client = new TestClient(
-          getDefaultTestClientOptions({
-            dsn: 'https://username@domain/123',
-            enableSend: true,
-            traceLifecycle: 'static',
-            beforeSendSpan: withStaticSpan(beforeSendSpan),
-          }),
-        );
-        setCurrentClient(client);
-
-        // @ts-expect-error Accessing private transport API
-        const mockSend = vi.spyOn(client._transport, 'send');
-        const span = new SentrySpan({
-          name: 'test',
-          isStandalone: true,
-          startTimestamp: 1,
-          endTimestamp: 2,
-          sampled: true,
-        });
-        span.end();
-
-        expect(beforeSendSpan).toHaveBeenCalledTimes(1);
-        // the v1 span format, not the streamed one
-        expect(received).toEqual(
-          expect.objectContaining({
-            description: 'test',
-            timestamp: 2,
-            start_timestamp: 1,
-            origin: 'manual',
-            data: expect.objectContaining({ 'sentry.origin': 'manual' }),
-          }),
-        );
-
-        expect(mockSend).toHaveBeenCalled();
-        const sentSpan = mockSend.mock.calls[0]![0]![1][0][1].items[0];
-        expect(sentSpan.name).toBe('renamed-by-beforeSendSpan');
-      });
-
-      test('ignores an unwrapped (streamed) `beforeSendSpan` for standalone spans in the static trace lifecycle', () => {
-        const beforeSendSpan = vi.fn(() => null as unknown as SpanJSON);
-        const client = new TestClient(
-          getDefaultTestClientOptions({
-            dsn: 'https://username@domain/123',
-            enableSend: true,
-            traceLifecycle: 'static',
-            // @ts-expect-error - an unwrapped callback expects the streamed format
-            beforeSendSpan,
-          }),
-        );
-        setCurrentClient(client);
-
-        const recordDroppedEventSpy = vi.spyOn(client, 'recordDroppedEvent');
-        // @ts-expect-error Accessing private transport API
-        const mockSend = vi.spyOn(client._transport, 'send');
-        const span = new SentrySpan({
-          name: 'test',
-          isStandalone: true,
-          startTimestamp: 1,
-          endTimestamp: 2,
-          sampled: true,
-        });
-        span.end();
-
-        expect(beforeSendSpan).not.toHaveBeenCalled();
-        expect(mockSend).toHaveBeenCalled();
-        expect(recordDroppedEventSpy).not.toHaveBeenCalled();
-      });
-
-      test('ignores a static `beforeSendSpan` for standalone spans when span streaming is enabled', () => {
+      test('ignores a static `beforeSendSpan` for standalone spans', () => {
+        // Standalone spans are sent as v2 streamed spans, which only honor an unwrapped (streamed)
+        // `beforeSendSpan`. A callback wrapped with `withStaticSpan` is ignored, so the span is sent unmodified.
         const beforeSendSpan = withStaticSpan(vi.fn(() => null as unknown as SpanJSON));
         const client = new TestClient(
           getDefaultTestClientOptions({
             dsn: 'https://username@domain/123',
             enableSend: true,
-            traceLifecycle: 'stream',
             beforeSendSpan,
           }),
         );
