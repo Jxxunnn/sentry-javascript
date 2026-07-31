@@ -269,20 +269,23 @@ describe('MCP Server Transport Instrumentation', () => {
 
       expect(startInactiveSpanSpy).toHaveBeenCalledWith({
         name: 'tools/call process-file',
-        op: 'mcp.server',
         forceTransaction: true,
         attributes: {
           'mcp.method.name': 'tools/call',
+          'rpc.method': 'tools/call',
+          'jsonrpc.protocol.version': '2.0',
           'mcp.tool.name': 'process-file',
           'mcp.request.id': 'req-stdio-1',
+          'jsonrpc.request.id': 'req-stdio-1',
           'mcp.session.id': 'stdio-session-456',
           'mcp.transport': 'StdioServerTransport',
           'network.transport': 'pipe', // Should be pipe, not tcp
           'network.protocol.version': '2.0',
           'mcp.request.argument.path': '"/tmp/data.txt"',
-          'sentry.op': 'mcp.server',
+          'sentry.op': 'rpc',
           'sentry.origin': 'auto.function.mcp_server',
           'sentry.source': 'route',
+          'rpc.system.name': 'mcp',
         },
       });
     });
@@ -419,12 +422,14 @@ describe('MCP Server Transport Instrumentation', () => {
 
       expect(config).toEqual({
         name: 'tools/call test-tool',
-        op: 'mcp.server',
         forceTransaction: true,
         attributes: expect.objectContaining({
           'mcp.method.name': 'tools/call',
+          'rpc.method': 'tools/call',
+          'jsonrpc.protocol.version': '2.0',
           'mcp.tool.name': 'test-tool',
           'mcp.request.id': 'req-direct-test',
+          'jsonrpc.request.id': 'req-direct-test',
           'mcp.session.id': 'test-session-direct',
           'client.address': '127.0.0.1',
           'client.port': 8080,
@@ -432,9 +437,10 @@ describe('MCP Server Transport Instrumentation', () => {
           'network.transport': 'tcp',
           'network.protocol.version': '2.0',
           'mcp.request.argument.input': '"test"',
-          'sentry.op': 'mcp.server',
+          'sentry.op': 'rpc',
           'sentry.origin': 'auto.function.mcp_server',
           'sentry.source': 'route',
+          'rpc.system.name': 'mcp',
         }),
       });
     });
@@ -906,7 +912,9 @@ describe('MCP Server Transport Instrumentation', () => {
       expect(startInactiveSpanSpy).toHaveBeenCalledWith(
         expect.objectContaining({
           name: 'tools/call test-tool',
-          op: 'mcp.server',
+          attributes: expect.objectContaining({
+            'sentry.op': 'rpc',
+          }),
         }),
       );
 

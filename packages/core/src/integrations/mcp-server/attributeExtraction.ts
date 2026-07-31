@@ -2,6 +2,7 @@
  * Core attribute extraction and building functions for MCP server instrumentation
  */
 
+import { JSONRPC_PROTOCOL_VERSION, JSONRPC_REQUEST_ID, RPC_METHOD } from '@sentry/conventions/attributes';
 import { isURLObjectRelative, parseStringToURLObject } from '../../utils/url';
 import {
   MCP_LOGGING_DATA_TYPE_ATTRIBUTE,
@@ -117,13 +118,21 @@ export function buildTypeSpecificAttributes(
     const targetInfo = extractTargetInfo(request.method, params || {});
 
     return {
-      ...(request.id !== undefined && { [MCP_REQUEST_ID_ATTRIBUTE]: String(request.id) }),
+      [RPC_METHOD]: request.method,
+      [JSONRPC_PROTOCOL_VERSION]: request.jsonrpc,
+      ...(request.id !== undefined && {
+        [MCP_REQUEST_ID_ATTRIBUTE]: String(request.id),
+        [JSONRPC_REQUEST_ID]: String(request.id),
+      }),
       ...targetInfo.attributes,
       ...(recordInputs ? getRequestArguments(request.method, params || {}) : {}),
     };
   }
 
-  return getNotificationAttributes(message.method, params || {}, recordInputs);
+  return {
+    [RPC_METHOD]: message.method,
+    ...getNotificationAttributes(message.method, params || {}, recordInputs),
+  };
 }
 
 // Re-export buildTransportAttributes for spans.ts

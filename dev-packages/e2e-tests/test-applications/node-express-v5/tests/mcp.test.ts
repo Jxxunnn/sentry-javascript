@@ -21,7 +21,7 @@ test('Should record transactions for mcp handlers', async ({ baseURL }) => {
   await test.step('initialize handshake', async () => {
     const initializeTransaction = await initializeTransactionPromise;
     expect(initializeTransaction).toBeDefined();
-    expect(initializeTransaction.contexts?.trace?.op).toEqual('mcp.server');
+    expect(initializeTransaction.contexts?.trace?.op).toEqual('rpc');
     expect(initializeTransaction.contexts?.trace?.data?.['mcp.method.name']).toEqual('initialize');
     expect(initializeTransaction.contexts?.trace?.data?.['mcp.client.name']).toEqual('test-client');
     expect(initializeTransaction.contexts?.trace?.data?.['mcp.server.name']).toEqual('Echo');
@@ -166,7 +166,7 @@ test('Should record transactions for mcp handlers', async ({ baseURL }) => {
 
     const toolTransaction = await toolTransactionPromise;
     expect(toolTransaction).toBeDefined();
-    expect(toolTransaction.contexts?.trace?.op).toEqual('mcp.server');
+    expect(toolTransaction.contexts?.trace?.op).toEqual('rpc');
     expect(toolTransaction.contexts?.trace?.status).toEqual('internal_error');
   });
 });
@@ -202,7 +202,7 @@ test('Should record transactions for streamable HTTP transport (wrapper transpor
   await test.step('initialize handshake', async () => {
     const initializeTransaction = await initializeTransactionPromise;
     expect(initializeTransaction).toBeDefined();
-    expect(initializeTransaction.contexts?.trace?.op).toEqual('mcp.server');
+    expect(initializeTransaction.contexts?.trace?.op).toEqual('rpc');
     expect(initializeTransaction.contexts?.trace?.data?.['mcp.method.name']).toEqual('initialize');
     expect(initializeTransaction.contexts?.trace?.data?.['mcp.client.name']).toEqual('test-client-streamable');
     expect(initializeTransaction.contexts?.trace?.data?.['mcp.server.name']).toEqual('Echo-Streamable');
@@ -236,7 +236,7 @@ test('Should record transactions for streamable HTTP transport (wrapper transpor
 
     const toolTransaction = await toolTransactionPromise;
     expect(toolTransaction).toBeDefined();
-    expect(toolTransaction.contexts?.trace?.op).toEqual('mcp.server');
+    expect(toolTransaction.contexts?.trace?.op).toEqual('rpc');
     expect(toolTransaction.contexts?.trace?.data?.['mcp.method.name']).toEqual('tools/call');
     expect(toolTransaction.contexts?.trace?.data?.['mcp.tool.name']).toEqual('echo');
     // This attribute proves the span was completed with results (sessionId correlation worked)
@@ -262,7 +262,7 @@ test('Should record transactions for streamable HTTP transport (wrapper transpor
 
     const resourceTransaction = await resourceTransactionPromise;
     expect(resourceTransaction).toBeDefined();
-    expect(resourceTransaction.contexts?.trace?.op).toEqual('mcp.server');
+    expect(resourceTransaction.contexts?.trace?.op).toEqual('rpc');
     expect(resourceTransaction.contexts?.trace?.data?.['mcp.method.name']).toEqual('resources/read');
   });
 
@@ -295,7 +295,7 @@ test('Should record transactions for streamable HTTP transport (wrapper transpor
 
     const promptTransaction = await promptTransactionPromise;
     expect(promptTransaction).toBeDefined();
-    expect(promptTransaction.contexts?.trace?.op).toEqual('mcp.server');
+    expect(promptTransaction.contexts?.trace?.op).toEqual('rpc');
     expect(promptTransaction.contexts?.trace?.data?.['mcp.method.name']).toEqual('prompts/get');
   });
 

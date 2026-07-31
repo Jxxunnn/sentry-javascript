@@ -141,26 +141,24 @@ export const CLIENT_PORT_ATTRIBUTE = 'client.port';
 // SENTRY-SPECIFIC MCP ATTRIBUTE VALUES
 // =============================================================================
 
-/** Sentry operation value for MCP server spans */
-export const MCP_SERVER_OP_VALUE = 'mcp.server';
-
 /**
- * Sentry operation value for client-to-server notifications
- * Following OpenTelemetry MCP semantic conventions
+ * Sentry operation value for all MCP spans (requests and notifications).
+ * MCP is JSON-RPC, so it shares the cross-protocol `rpc` op; the request/
+ * notification distinction and direction live in attributes instead.
  */
-export const MCP_NOTIFICATION_CLIENT_TO_SERVER_OP_VALUE = 'mcp.notification.client_to_server';
+export const MCP_RPC_OP_VALUE = 'rpc';
 
-/**
- * Sentry operation value for server-to-client notifications
- * Following OpenTelemetry MCP semantic conventions
- */
-export const MCP_NOTIFICATION_SERVER_TO_CLIENT_OP_VALUE = 'mcp.notification.server_to_client';
+/** `rpc.system` value identifying MCP as the RPC protocol */
+export const MCP_RPC_SYSTEM_VALUE = 'mcp';
 
 /** Sentry origin value for MCP function spans */
 export const MCP_FUNCTION_ORIGIN_VALUE = 'auto.function.mcp_server';
 
-/** Sentry origin value for MCP notification spans */
-export const MCP_NOTIFICATION_ORIGIN_VALUE = 'auto.mcp.notification';
+/** Sentry origin value for incoming (client→server) MCP notification spans */
+export const MCP_NOTIFICATION_INCOMING_ORIGIN_VALUE = 'auto.mcp.notification.client_to_server';
+
+/** Sentry origin value for outgoing (server→client) MCP notification spans */
+export const MCP_NOTIFICATION_OUTGOING_ORIGIN_VALUE = 'auto.mcp.notification.server_to_client';
 
 /** Sentry source value for MCP route spans */
 export const MCP_ROUTE_SOURCE_VALUE = 'route';

@@ -5,22 +5,19 @@
  * Handles both request and notification spans with attribute extraction.
  */
 
+import { RPC_SYSTEM_NAME, SENTRY_OP } from '@sentry/conventions/attributes';
 import { getClient } from '../../currentScopes';
-import {
-  SEMANTIC_ATTRIBUTE_SENTRY_OP,
-  SEMANTIC_ATTRIBUTE_SENTRY_ORIGIN,
-  SEMANTIC_ATTRIBUTE_SENTRY_SOURCE,
-} from '../../semanticAttributes';
+import { SEMANTIC_ATTRIBUTE_SENTRY_ORIGIN, SEMANTIC_ATTRIBUTE_SENTRY_SOURCE } from '../../semanticAttributes';
 import { startSpan } from '../../tracing';
 import { buildTransportAttributes, buildTypeSpecificAttributes } from './attributeExtraction';
 import {
   MCP_FUNCTION_ORIGIN_VALUE,
   MCP_METHOD_NAME_ATTRIBUTE,
-  MCP_NOTIFICATION_CLIENT_TO_SERVER_OP_VALUE,
-  MCP_NOTIFICATION_ORIGIN_VALUE,
-  MCP_NOTIFICATION_SERVER_TO_CLIENT_OP_VALUE,
+  MCP_NOTIFICATION_INCOMING_ORIGIN_VALUE,
+  MCP_NOTIFICATION_OUTGOING_ORIGIN_VALUE,
   MCP_ROUTE_SOURCE_VALUE,
-  MCP_SERVER_OP_VALUE,
+  MCP_RPC_OP_VALUE,
+  MCP_RPC_SYSTEM_VALUE,
 } from './attributes';
 import { extractTargetInfo } from './methodConfig';
 import { filterMcpPiiFromSpanData } from './piiFiltering';
@@ -51,28 +48,25 @@ function createSpanName(method: string, target?: string): string {
  * @returns Sentry-specific attributes
  */
 function buildSentryAttributes(type: McpSpanConfig['type']): Record<string, string> {
-  let op: string;
   let origin: string;
 
   switch (type) {
     case 'request':
-      op = MCP_SERVER_OP_VALUE;
       origin = MCP_FUNCTION_ORIGIN_VALUE;
       break;
     case 'notification-incoming':
-      op = MCP_NOTIFICATION_CLIENT_TO_SERVER_OP_VALUE;
-      origin = MCP_NOTIFICATION_ORIGIN_VALUE;
+      origin = MCP_NOTIFICATION_INCOMING_ORIGIN_VALUE;
       break;
     case 'notification-outgoing':
-      op = MCP_NOTIFICATION_SERVER_TO_CLIENT_OP_VALUE;
-      origin = MCP_NOTIFICATION_ORIGIN_VALUE;
+      origin = MCP_NOTIFICATION_OUTGOING_ORIGIN_VALUE;
       break;
   }
 
   return {
-    [SEMANTIC_ATTRIBUTE_SENTRY_OP]: op,
+    [SENTRY_OP]: MCP_RPC_OP_VALUE,
     [SEMANTIC_ATTRIBUTE_SENTRY_ORIGIN]: origin,
     [SEMANTIC_ATTRIBUTE_SENTRY_SOURCE]: MCP_ROUTE_SOURCE_VALUE,
+    [RPC_SYSTEM_NAME]: MCP_RPC_SYSTEM_VALUE,
   };
 }
 
@@ -182,7 +176,6 @@ export function buildMcpServerSpanConfig(
   options?: ResolvedMcpOptions,
 ): {
   name: string;
-  op: string;
   forceTransaction: boolean;
   attributes: Record<string, string | number>;
 } {
@@ -205,7 +198,6 @@ export function buildMcpServerSpanConfig(
 
   return {
     name: spanName,
-    op: MCP_SERVER_OP_VALUE,
     forceTransaction: true,
     attributes,
   };

@@ -47,12 +47,14 @@ describe('MCP Server Semantic Conventions', () => {
 
       expect(startInactiveSpanSpy).toHaveBeenCalledWith({
         name: 'tools/call get-weather',
-        op: 'mcp.server',
         forceTransaction: true,
         attributes: {
           'mcp.method.name': 'tools/call',
+          'rpc.method': 'tools/call',
+          'jsonrpc.protocol.version': '2.0',
           'mcp.tool.name': 'get-weather',
           'mcp.request.id': 'req-1',
+          'jsonrpc.request.id': 'req-1',
           'mcp.session.id': 'test-session-123',
           'client.address': '192.168.1.100',
           'client.port': 54321,
@@ -60,9 +62,10 @@ describe('MCP Server Semantic Conventions', () => {
           'network.transport': 'tcp',
           'network.protocol.version': '2.0',
           'mcp.request.argument.location': '"Seattle, WA"',
-          'sentry.op': 'mcp.server',
+          'sentry.op': 'rpc',
           'sentry.origin': 'auto.function.mcp_server',
           'sentry.source': 'route',
+          'rpc.system.name': 'mcp',
         },
       });
     });
@@ -81,20 +84,23 @@ describe('MCP Server Semantic Conventions', () => {
 
       expect(startInactiveSpanSpy).toHaveBeenCalledWith({
         name: 'resources/read file:///docs/api.md',
-        op: 'mcp.server',
         forceTransaction: true,
         attributes: {
           'mcp.method.name': 'resources/read',
+          'rpc.method': 'resources/read',
+          'jsonrpc.protocol.version': '2.0',
           'mcp.resource.uri': 'file:///docs/api.md',
           'mcp.request.id': 'req-2',
+          'jsonrpc.request.id': 'req-2',
           'mcp.session.id': 'test-session-123',
           'mcp.transport': 'StreamableHTTPServerTransport',
           'network.transport': 'tcp',
           'network.protocol.version': '2.0',
           'mcp.request.argument.uri': '"file:///docs/api.md"',
-          'sentry.op': 'mcp.server',
+          'sentry.op': 'rpc',
           'sentry.origin': 'auto.function.mcp_server',
           'sentry.source': 'route',
+          'rpc.system.name': 'mcp',
         },
       });
     });
@@ -113,20 +119,23 @@ describe('MCP Server Semantic Conventions', () => {
 
       expect(startInactiveSpanSpy).toHaveBeenCalledWith({
         name: 'prompts/get analyze-code',
-        op: 'mcp.server',
         forceTransaction: true,
         attributes: {
           'mcp.method.name': 'prompts/get',
+          'rpc.method': 'prompts/get',
+          'jsonrpc.protocol.version': '2.0',
           'mcp.prompt.name': 'analyze-code',
           'mcp.request.id': 'req-3',
+          'jsonrpc.request.id': 'req-3',
           'mcp.session.id': 'test-session-123',
           'mcp.transport': 'StreamableHTTPServerTransport',
           'network.transport': 'tcp',
           'network.protocol.version': '2.0',
           'mcp.request.argument.name': '"analyze-code"',
-          'sentry.op': 'mcp.server',
+          'sentry.op': 'rpc',
           'sentry.origin': 'auto.function.mcp_server',
           'sentry.source': 'route',
+          'rpc.system.name': 'mcp',
         },
       });
     });
@@ -148,13 +157,15 @@ describe('MCP Server Semantic Conventions', () => {
           forceTransaction: true,
           attributes: {
             'mcp.method.name': 'notifications/tools/list_changed',
+            'rpc.method': 'notifications/tools/list_changed',
             'mcp.session.id': 'test-session-123',
             'mcp.transport': 'StreamableHTTPServerTransport',
             'network.transport': 'tcp',
             'network.protocol.version': '2.0',
-            'sentry.op': 'mcp.notification.client_to_server',
-            'sentry.origin': 'auto.mcp.notification',
+            'sentry.op': 'rpc',
+            'sentry.origin': 'auto.mcp.notification.client_to_server',
             'sentry.source': 'route',
+            'rpc.system.name': 'mcp',
           },
         },
         expect.any(Function),
@@ -185,16 +196,19 @@ describe('MCP Server Semantic Conventions', () => {
           forceTransaction: true,
           attributes: expect.objectContaining({
             'mcp.method.name': 'tools/list',
+            'rpc.method': 'tools/list',
             'mcp.request.id': 'req-4',
+            'jsonrpc.request.id': 'req-4',
             'mcp.session.id': 'test-session-123',
             // Transport attributes
             'mcp.transport': 'StreamableHTTPServerTransport',
             'network.transport': 'tcp',
             'network.protocol.version': '2.0',
             // Sentry-specific
-            'sentry.op': 'mcp.server',
+            'sentry.op': 'rpc',
             'sentry.origin': 'auto.function.mcp_server',
             'sentry.source': 'route',
+            'rpc.system.name': 'mcp',
           }),
         }),
       );
@@ -221,6 +235,7 @@ describe('MCP Server Semantic Conventions', () => {
           forceTransaction: true,
           attributes: {
             'mcp.method.name': 'notifications/message',
+            'rpc.method': 'notifications/message',
             'mcp.session.id': 'test-session-123',
             'mcp.transport': 'StreamableHTTPServerTransport',
             'network.transport': 'tcp',
@@ -229,9 +244,10 @@ describe('MCP Server Semantic Conventions', () => {
             'mcp.logging.logger': 'math-service',
             'mcp.logging.data_type': 'string',
             'mcp.logging.message': 'Addition completed: 2 + 5 = 7',
-            'sentry.op': 'mcp.notification.client_to_server',
-            'sentry.origin': 'auto.mcp.notification',
+            'sentry.op': 'rpc',
+            'sentry.origin': 'auto.mcp.notification.client_to_server',
             'sentry.source': 'route',
+            'rpc.system.name': 'mcp',
           },
         },
         expect.any(Function),
@@ -260,9 +276,10 @@ describe('MCP Server Semantic Conventions', () => {
             'mcp.method.name': 'notifications/cancelled',
             'mcp.cancelled.request_id': 'req-123',
             'mcp.cancelled.reason': 'user_requested',
-            'sentry.op': 'mcp.notification.client_to_server',
-            'sentry.origin': 'auto.mcp.notification',
+            'sentry.op': 'rpc',
+            'sentry.origin': 'auto.mcp.notification.client_to_server',
             'sentry.source': 'route',
+            'rpc.system.name': 'mcp',
           }),
         }),
         expect.any(Function),
@@ -294,9 +311,10 @@ describe('MCP Server Semantic Conventions', () => {
             'mcp.progress.total': 100,
             'mcp.progress.percentage': 75,
             'mcp.progress.message': 'Processing files...',
-            'sentry.op': 'mcp.notification.client_to_server',
-            'sentry.origin': 'auto.mcp.notification',
+            'sentry.op': 'rpc',
+            'sentry.origin': 'auto.mcp.notification.client_to_server',
             'sentry.source': 'route',
+            'rpc.system.name': 'mcp',
           }),
         }),
         expect.any(Function),
@@ -322,9 +340,10 @@ describe('MCP Server Semantic Conventions', () => {
             'mcp.method.name': 'notifications/resources/updated',
             'mcp.resource.uri': 'file:///tmp/data.json',
             'mcp.resource.protocol': 'file',
-            'sentry.op': 'mcp.notification.client_to_server',
-            'sentry.origin': 'auto.mcp.notification',
+            'sentry.op': 'rpc',
+            'sentry.origin': 'auto.mcp.notification.client_to_server',
             'sentry.source': 'route',
+            'rpc.system.name': 'mcp',
           }),
         }),
         expect.any(Function),
@@ -346,9 +365,10 @@ describe('MCP Server Semantic Conventions', () => {
           name: 'notifications/tools/list_changed',
           attributes: expect.objectContaining({
             'mcp.method.name': 'notifications/tools/list_changed',
-            'sentry.op': 'mcp.notification.server_to_client',
-            'sentry.origin': 'auto.mcp.notification',
+            'sentry.op': 'rpc',
+            'sentry.origin': 'auto.mcp.notification.server_to_client',
             'sentry.source': 'route',
+            'rpc.system.name': 'mcp',
           }),
         }),
         expect.any(Function),
@@ -387,12 +407,13 @@ describe('MCP Server Semantic Conventions', () => {
       expect(startInactiveSpanSpy).toHaveBeenCalledWith(
         expect.objectContaining({
           name: 'tools/call weather-lookup',
-          op: 'mcp.server',
           forceTransaction: true,
           attributes: expect.objectContaining({
             'mcp.method.name': 'tools/call',
             'mcp.tool.name': 'weather-lookup',
             'mcp.request.id': 'req-tool-result',
+            'sentry.op': 'rpc',
+            'rpc.system.name': 'mcp',
           }),
         }),
       );
@@ -460,12 +481,13 @@ describe('MCP Server Semantic Conventions', () => {
       expect(startInactiveSpanSpy).toHaveBeenCalledWith(
         expect.objectContaining({
           name: 'prompts/get code-review',
-          op: 'mcp.server',
           forceTransaction: true,
           attributes: expect.objectContaining({
             'mcp.method.name': 'prompts/get',
             'mcp.prompt.name': 'code-review',
             'mcp.request.id': 'req-prompt-result',
+            'sentry.op': 'rpc',
+            'rpc.system.name': 'mcp',
           }),
         }),
       );
