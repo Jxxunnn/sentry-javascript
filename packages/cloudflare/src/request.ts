@@ -2,7 +2,6 @@ import type { CfProperties, IncomingRequestCfProperties } from '@cloudflare/work
 import {
   captureException,
   continueTrace,
-  getClient,
   getHttpSpanDetailsFromUrlObject,
   httpHeadersToSpanAttributes,
   parseStringToURLObject,
@@ -77,13 +76,12 @@ export function wrapRequestHandler(
       attributes['user_agent.original'] = userAgentHeader;
     }
 
-    Object.assign(
-      attributes,
-      httpHeadersToSpanAttributes(
-        winterCGHeadersToDict(request.headers),
-        getClient()?.getDataCollectionOptions() ?? false,
-      ),
-    );
+    if (client) {
+      Object.assign(
+        attributes,
+        httpHeadersToSpanAttributes(winterCGHeadersToDict(request.headers), client.getDataCollectionOptions()),
+      );
+    }
 
     attributes[SEMANTIC_ATTRIBUTE_SENTRY_OP] = 'http.server';
 

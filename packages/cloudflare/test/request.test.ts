@@ -299,9 +299,7 @@ describe('withSentry', () => {
       expect(sentryEvent.sdkProcessingMetadata?.normalizedRequest?.data).toEqual(JSON.stringify({ key: 'value' }));
     });
 
-    // TODO(v11): Cookies should be attached (subject to denylist filtering) by default. Until then we keep the
-    // historical Cloudflare behavior of not attaching cookies unless the user explicitly opts in.
-    test('does not capture cookies by default', async () => {
+    test('captures cookies by default', async () => {
       let sentryEvent: Event = {};
 
       await wrapRequestHandler(
@@ -322,7 +320,7 @@ describe('withSentry', () => {
         },
       );
 
-      expect(sentryEvent.request?.cookies).toBeUndefined();
+      expect(sentryEvent.request?.cookies).toEqual({ foo: 'bar' });
     });
 
     test('does not capture request body for GET requests', async () => {
